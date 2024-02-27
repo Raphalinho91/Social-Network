@@ -23,7 +23,7 @@ export const POST = async (req: Request) => {
       !email ||
       !password
     ) {
-      return NextResponse.json({ error: "Invalid Data" }, { status: 422 });
+      return NextResponse.json({ error: "Veuillez remplir tous les champs" }, { status: 422 });
     }
 
     await connectToDb();
@@ -35,7 +35,7 @@ export const POST = async (req: Request) => {
     });
     if (existingUser) {
       return NextResponse.json(
-        { message: "User already registered, Please login" },
+        { message: "Utilisateur déjà existant. Connectez-vous !" },
         { status: 403 }
       );
     }

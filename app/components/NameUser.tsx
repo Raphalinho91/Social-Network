@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { TextField, Grid } from "@mui/material";
+import { TextField } from "@mui/material";
 
 const NameUser = ({ firstName, lastName, userName, onChange }) => (
   <>

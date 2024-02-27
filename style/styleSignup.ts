@@ -21,3 +21,11 @@ export const TabMenuBox = styled(Box)({
   width: "30px",
   height: "30px",
 });
+
+export const BoxCenter = styled(Box)({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  flexDirection: "column",
+  marginTop: "60px",
+});

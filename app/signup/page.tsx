@@ -22,6 +22,10 @@ import EmailAndPhone from "../components/EmailAndPhone";
 import PasswordPlanel from "../components/PasswordPlanel";
 import * as style from "../../style/styleSignup";
 import { Dayjs } from "dayjs";
+import Link from "next/link";
+import SignupSuccessPlanel from "../components/SignupSuccessPlanel";
+import SendVerifyEmailOrPhone from "../components/SendVerifyPlanel";
+import OtpInput from "../components/OtpInputPlanel";
 
 const InscriptionPage = () => {
   const [firstName, setFirstName] = useState("");
@@ -36,7 +40,15 @@ const InscriptionPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [value, setValue] = useState(0);
+  const [value, setValue] = React.useState(0);
+
+  const handleComplete = (otp) => {
+    console.log("OTP Complet:", otp);
+  };
+
+  const handleChangeTab = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
 
   const goToPreviousTab = () => {
     if (value > 0) {
@@ -76,10 +88,6 @@ const InscriptionPage = () => {
     }
   };
 
-  const handleChangeTab = (event, newValue) => {
-    setValue(newValue);
-  };
-
   const handleNextTab = () => {
     let canProceed: boolean = false;
     switch (value) {
@@ -94,6 +102,15 @@ const InscriptionPage = () => {
         canProceed = !!email.trim() && !!phoneNumber.trim();
         break;
       case 3:
+        canProceed = true;
+        break;
+      case 4:
+        canProceed = true;
+        break;
+      case 5:
+        canProceed = true;
+        break;
+      case 6:
         canProceed = !!password.trim() && password === confirmPassword;
         break;
       default:
@@ -105,7 +122,7 @@ const InscriptionPage = () => {
       alert("Veuillez remplir tous les champs requis avant de continuer.");
       return;
     } else {
-      setValue((prevValue) => Math.min(prevValue + 1, 3));
+      setValue((prevValue) => Math.min(prevValue + 1, 6));
     }
   };
 
@@ -149,17 +166,16 @@ const InscriptionPage = () => {
         "http://localhost:3000/api/signup",
         user
       );
-      console.log("User created:", response.data.user);
       setLoading(false);
       setFirstName("");
       setLastName("");
-      setUserName("");
       setPhoneNumber("");
       setDateOfBirth(null);
       setEmail("");
       setPassword("");
       setConfirmPassword("");
       setSuccess(true);
+      setValue((prevValue) => Math.min(prevValue + 1, 6));
     } catch (error) {
       setLoading(false);
       if (axios.isAxiosError(error) && error.response) {
@@ -238,7 +254,7 @@ const InscriptionPage = () => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                width: "90%"
+                width: "100%",
               }}
             >
               <Typography
@@ -252,25 +268,61 @@ const InscriptionPage = () => {
               </Typography>
             </Grid>
             <form onSubmit={handleSubmit}>
-              <Tabs
-                value={value}
-                onChange={handleChangeTab}
-                textColor="inherit"
-                variant="fullWidth"
+              <Box
                 sx={{
-                  display: "flex",
-                  width: "100%",
-                  mt: 3,
-                  ".MuiTabs-indicator": {
-                    display: "none",
-                  },
+                  maxWidth: { xs: 320, sm: 416 },
+                  bgcolor: "background.paper",
                 }}
               >
-                <Tab label={<style.TabMenuBox>1</style.TabMenuBox>} value={0} />
-                <Tab label={<style.TabMenuBox>2</style.TabMenuBox>} value={1} />
-                <Tab label={<style.TabMenuBox>3</style.TabMenuBox>} value={2} />
-                <Tab label={<style.TabMenuBox>4</style.TabMenuBox>} value={3} />
-              </Tabs>
+                <Tabs
+                  value={value}
+                  onChange={handleChangeTab}
+                  textColor="inherit"
+                  variant="scrollable"
+                  scrollButtons="auto"
+                  sx={{
+                    display: "flex",
+                    width: "100%",
+                    mt: 3,
+                    ".MuiTabs-indicator": {
+                      display: "none",
+                    },
+                  }}
+                >
+                  <Tab
+                    label={<style.TabMenuBox>1</style.TabMenuBox>}
+                    value={0}
+                  />
+                  <Tab
+                    label={<style.TabMenuBox>2</style.TabMenuBox>}
+                    value={1}
+                  />
+                  <Tab
+                    label={<style.TabMenuBox>3</style.TabMenuBox>}
+                    value={2}
+                  />
+                  <Tab
+                    label={<style.TabMenuBox>4</style.TabMenuBox>}
+                    value={3}
+                  />
+                  <Tab
+                    label={<style.TabMenuBox>5</style.TabMenuBox>}
+                    value={4}
+                  />
+                  <Tab
+                    label={<style.TabMenuBox>6</style.TabMenuBox>}
+                    value={5}
+                  />
+                  <Tab
+                    label={<style.TabMenuBox>7</style.TabMenuBox>}
+                    value={6}
+                  />
+                  <Tab
+                    label={<style.TabMenuBox>8</style.TabMenuBox>}
+                    value={7}
+                  />
+                </Tabs>
+              </Box>
               <Grid
                 item
                 sx={{
@@ -279,7 +331,6 @@ const InscriptionPage = () => {
                   justifyContent: "center",
                   width: "100%",
                   height: "100%",
-                  marginTop: "20px",
                 }}
               >
                 <TabPanel value={value} index={0}>
@@ -289,21 +340,56 @@ const InscriptionPage = () => {
                     userName={userName}
                     onChange={handleChange}
                   />
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      mt: 6,
-                    }}
-                  >
+                  <style.BoxCenter sx={{ mt: 5 }}>
                     <style.BtnDefault
                       onClick={handleNextTab}
                       sx={{ width: "50%" }}
                     >
                       Suivant
                     </style.BtnDefault>
-                  </Box>
+                  </style.BoxCenter>
+                  <style.BoxCenter sx={{ mt: 3 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: "Poppins, sans-serif",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        mt: 1,
+                      }}
+                    >
+                      Vous avez déjà un compte ?{" "}
+                      <Link
+                        href="/login"
+                        style={{
+                          textDecoration: "none",
+                          listStyle: "none",
+                          color: "#7786F6",
+                        }}
+                      >
+                        Connectez-vous
+                      </Link>
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: "Poppins, sans-serif",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        mt: 1,
+                      }}
+                    >
+                      Retournez à{" "}
+                      <Link
+                        href="/"
+                        style={{
+                          textDecoration: "none",
+                          listStyle: "none",
+                          color: "#7786F6",
+                        }}
+                      >
+                        l&#39;accueil
+                      </Link>
+                    </Typography>
+                  </style.BoxCenter>
                 </TabPanel>
                 <TabPanel value={value} index={1}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -371,6 +457,72 @@ const InscriptionPage = () => {
                   </Box>
                 </TabPanel>
                 <TabPanel value={value} index={3}>
+                  <SendVerifyEmailOrPhone
+                    phoneNumber={phoneNumber}
+                    email={email}
+                  />
+                </TabPanel>
+                <TabPanel value={value} index={4}>
+                  <style.BoxCenter sx={{ mt: 3 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: "Poppins, sans-serif",
+                        fontSize: "20px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Veuillez rentrer le code reçu
+                    </Typography>
+                    <OtpInput length={6} onComplete={handleComplete} />
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        width: "100%",
+                        mt: 6,
+                      }}
+                    >
+                      <style.BtnDefault sx={{ width: "40%" }}>Renvoyez le code</style.BtnDefault>
+                      <style.BtnDefault sx={{ width: "40%" }}>Vérifiez le code</style.BtnDefault>
+                    </Box>
+                  </style.BoxCenter>
+                </TabPanel>
+                <TabPanel value={value} index={5}>
+                <style.BoxCenter sx={{ mt: 3 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: "Poppins, sans-serif",
+                        fontSize: "20px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Super, votre compte a été vérifié !
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: "Poppins, sans-serif",
+                        fontSize: "15px",
+                        fontWeight: "400",
+                        mt: 1
+                      }}
+                    >
+                      Il ne vous reste qu&#39;une étape, créer votre mot de passe. 
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        width: "100%",
+                        mt: 6,
+                      }}
+                    >
+                      <style.BtnDefault sx={{ width: "60%" }} onClick={handleNextTab}>Créer mon mot de passe</style.BtnDefault>
+                    </Box>
+                    </style.BoxCenter>
+                </TabPanel>
+                <TabPanel value={value} index={6}>
                   <PasswordPlanel
                     password={password}
                     confirmPassword={confirmPassword}
@@ -425,6 +577,9 @@ const InscriptionPage = () => {
                       Utilisateur créé avec succès !
                     </Alert>
                   </Snackbar>
+                </TabPanel>
+                <TabPanel value={value} index={7}>
+                  <SignupSuccessPlanel userName={userName} />
                 </TabPanel>
               </Grid>
             </form>
