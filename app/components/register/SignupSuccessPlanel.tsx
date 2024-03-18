@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Box, Typography } from "@mui/material";
-import * as style from "../../style/styleSignup";
+import * as style from "../../../style/styleSignup";
 import Link from "next/link";
 
 const SignupSuccessPlanel = ({ userName }) => (
@@ -10,23 +10,23 @@ const SignupSuccessPlanel = ({ userName }) => (
       <Typography
         sx={{
           fontFamily: "Poppins, sans-serif",
-          fontSize: "18px",
+          fontSize: "20px",
           fontWeight: "600",
           mt: 1,
         }}
       >
-        Super, votre compte a été créer{" "}
-        <span style={{ color: "#7786F6" }}>{userName}</span> !
+        Super, votre compte a été créer !
       </Typography>
       <Typography
         sx={{
           fontFamily: "Poppins, sans-serif",
-          fontSize: "15px",
-          fontWeight: "500",
+          fontSize: "14px",
+          fontWeight: "400",
           mt: 1,
         }}
       >
-        Vous pouvez maintenant vous connectez !
+        Vous pouvez maintenant vous connectez{" "}
+        <span style={{ color: "#7786F6" }}>{userName}</span>
       </Typography>
     </style.BoxCenter>
     <style.BoxCenter>

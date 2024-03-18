@@ -24,7 +24,7 @@ const PasswordPanel = ({ password, confirmPassword, onChange }) => {
         placeholder="Mot de passe"
         value={password}
         onChange={onChange}
-        sx={{ display: "flex", width: "100%" }}
+        sx={{ display: "flex", width: "100%", mt: 1 }}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">

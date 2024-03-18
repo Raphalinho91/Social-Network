@@ -1,6 +1,6 @@
 import React from "react";
 
-const TabPanel = (props) => {
+const TabPanel = (props: any) => {
   const { children, value, index, ...other } = props;
 
   return (

@@ -23,7 +23,10 @@ export const POST = async (req: Request) => {
       !email ||
       !password
     ) {
-      return NextResponse.json({ error: "Veuillez remplir tous les champs" }, { status: 422 });
+      return NextResponse.json(
+        { error: "Veuillez remplir tous les champs" },
+        { status: 422 }
+      );
     }
 
     await connectToDb();
@@ -40,6 +43,20 @@ export const POST = async (req: Request) => {
       );
     }
 
+    const verifyEmailEntry = await prisma.verifyEmail.findFirst({
+      where: {
+        email,
+        codeIsValid: true,
+      },
+    });
+
+    if (!verifyEmailEntry) {
+      return NextResponse.json(
+        { error: "L'email n'a pas été vérifié !" },
+        { status: 404 }
+      );
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
       data: {
@@ -50,6 +67,13 @@ export const POST = async (req: Request) => {
         phoneNumber,
         email,
         password: hashedPassword,
+        emailIsVerified: true,
+      },
+    });
+
+    await prisma.verifyEmail.delete({
+      where: {
+        id: verifyEmailEntry.id,
       },
     });
 

@@ -14,6 +14,7 @@ const FirstPage = () => {
         justifyContent: "center",
         alignItems: "center",
         height: "100%",
+        width: "100%",
       }}
     >
       <Grid
@@ -23,6 +24,13 @@ const FirstPage = () => {
           display: "flex",
           height: "100%",
           width: "100%",
+          justifyContent: {
+            lg: "flex-start",
+            md: "flex-start",
+            sm: "center",
+            xs: "center",
+          },
+          alignItems: "flex-start",
           borderRadius: "20px",
           boxShadow:
             "rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;",
@@ -32,10 +40,10 @@ const FirstPage = () => {
           item
           xs={6}
           sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
+            display: { lg: "flex", md: "flex", sm: "none", xs: "none" },
             padding: "40px",
+            width: "100%",
+            height: "100%",
           }}
         >
           <Box
@@ -49,13 +57,15 @@ const FirstPage = () => {
         </Grid>
         <Grid
           item
-          xs={6}
+          md={6}
+          lg={6}
+          xs={12}
+          sm={12}
           sx={{
             display: "flex",
+            padding: "40px",
+            width: "100%",
             flexDirection: "column",
-            justifyContent: "flex-start",
-            alignItems: "flex-start",
-            padding: "80px",
           }}
         >
           <Typography
@@ -63,6 +73,8 @@ const FirstPage = () => {
               fontFamily: "Poppins, sans-serif",
               fontSize: "38px",
               fontWeight: "900",
+              textAlign: "center",
+              mt: 2,
             }}
           >
             Bienvenu sur AppAll

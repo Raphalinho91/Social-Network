@@ -13,6 +13,7 @@ const EmailAndPhone = ({ email, phoneNumber, onChange }) => (
       sx={{
         display: "flex",
         width: "100%",
+        mt: 1
       }}
     />
     <TextField

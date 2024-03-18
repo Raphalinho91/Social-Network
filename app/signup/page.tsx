@@ -12,20 +12,20 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import React, { useState } from "react";
-import TabPanel from "../components/TabPlanel";
-import NameUser from "../components/NameUser";
+import TabPanel from "../components/register/TabPlanel";
+import NameUser from "../components/register/NameUser";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateField } from "@mui/x-date-pickers/DateField";
-import EmailAndPhone from "../components/EmailAndPhone";
-import PasswordPlanel from "../components/PasswordPlanel";
+import EmailAndPhone from "../components/register/EmailAndPhone";
+import PasswordPlanel from "../components/register/PasswordPlanel";
 import * as style from "../../style/styleSignup";
 import { Dayjs } from "dayjs";
 import Link from "next/link";
-import SignupSuccessPlanel from "../components/SignupSuccessPlanel";
-import SendVerifyEmailOrPhone from "../components/SendVerifyPlanel";
-import OtpInput from "../components/OtpInputPlanel";
+import SignupSuccessPlanel from "../components/register/SignupSuccessPlanel";
+import SendVerifyEmailOrPhone from "../components/register/SendVerifyPlanel";
+import OtpInput from "../components/register/OtpInputPlanel";
 
 const InscriptionPage = () => {
   const [firstName, setFirstName] = useState("");
@@ -36,14 +36,20 @@ const InscriptionPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [selectedValueRadio, setSelectedValueRadio] = useState("");
+  const [otpValue, setOtpValue] = useState("");
+
+  const handleChangeRadio = (event) => {
+    setSelectedValueRadio(event.target.value);
+  };
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState("");
   const [value, setValue] = React.useState(0);
 
-  const handleComplete = (otp) => {
-    console.log("OTP Complet:", otp);
+  const handleComplete = (otp: any) => {
+    setOtpValue(otp);
   };
 
   const handleChangeTab = (event: React.SyntheticEvent, newValue: number) => {
@@ -122,15 +128,15 @@ const InscriptionPage = () => {
       alert("Veuillez remplir tous les champs requis avant de continuer.");
       return;
     } else {
-      setValue((prevValue) => Math.min(prevValue + 1, 6));
+      setValue((prevValue) => Math.min(prevValue + 1, 7));
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setSuccess(false);
+    setSuccess("");
 
     if (password !== confirmPassword) {
       setError("Les mots de passe ne correspondent pas.");
@@ -174,14 +180,93 @@ const InscriptionPage = () => {
       setEmail("");
       setPassword("");
       setConfirmPassword("");
-      setSuccess(true);
-      setValue((prevValue) => Math.min(prevValue + 1, 6));
+      setSuccess("Utilisateur créé avec succès !");
+      setValue((prevValue) => Math.min(prevValue + 1, 7));
     } catch (error) {
       setLoading(false);
       if (axios.isAxiosError(error) && error.response) {
-        setError(error.response.data.message || "An unknown error occurred");
+        setError(error.response.data.message || "Une erreur inconnue s'est produite.");
       } else {
-        setError("An unknown error occurred");
+        setError("Une erreur inconnue s'est produite.");
+      }
+    }
+  };
+
+  const [loadingSendEmail, setLoadingSendEmail] = useState(false);
+  const [errorSendEmail, setErrorSendEmail] = useState("");
+  const [successSendEmail, setSuccessSendEmail] = useState("");
+
+  const handleSubmitSendEmail = async () => {
+    setLoadingSendEmail(true);
+    setErrorSendEmail("");
+    setSuccessSendEmail("");
+  
+    if (!email && selectedValueRadio === "email") {
+      setErrorSendEmail("Veuillez renseigner votre adresse email.");
+      setLoadingSendEmail(false);
+      return;
+    } 
+    let url = "";
+    let data = {};
+    let successMessage = "";
+  
+    if (selectedValueRadio === "email") {
+      url = "http://localhost:3000/api/sendEmailCode";
+      data = { email };
+      successMessage = "Email envoyé avec succès !";
+    } 
+  
+    try {
+      const response = await axios.post(url, data);
+      setSuccessSendEmail(successMessage);
+      setValue((prevValue) => Math.min(prevValue + 1, 7));
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        setErrorSendEmail(
+          error.response.data.message || "Une erreur inconnue s'est produite."
+        );
+      } else {
+        setErrorSendEmail("Une erreur inconnue s'est produite.");
+      }
+    } finally {
+      setLoadingSendEmail(false);
+    }
+  };
+  
+
+  const handleSubmitVerifyEmail = async () => {
+    setLoadingSendEmail(true);
+    setErrorSendEmail("");
+    setSuccessSendEmail("");
+
+    if (!email) {
+      setErrorSendEmail("Veuillez renseigner votre adresse email.");
+      setLoadingSendEmail(false);
+      return;
+    }
+    if (!otpValue) {
+      setErrorSendEmail("Veuillez entrer le code reçu.");
+      setLoadingSendEmail(false);
+      return;
+    }
+
+    if (selectedValueRadio === "email") {
+      try {
+        const response = await axios.post(
+          "http://localhost:3000/api/verifyEmailCode",
+          { email, code: otpValue }
+        );
+
+        const messageFromServer = "Email vérifié avec succès !";
+        setSuccessSendEmail(messageFromServer);
+        setValue((prevValue) => Math.min(prevValue + 1, 7));
+      } catch (error) {
+        setLoadingSendEmail(false);
+        if (axios.isAxiosError(error) && error.response) {
+          setErrorSendEmail("Une erreur inconnue s'est produite.");
+        } else {
+          setErrorSendEmail("Une erreur inconnue s'est produite.");
+        }
       }
     }
   };
@@ -203,6 +288,7 @@ const InscriptionPage = () => {
           justifyContent: "center",
           alignItems: "center",
           height: "100%",
+          width: "100%",
         }}
       >
         <Grid
@@ -212,6 +298,13 @@ const InscriptionPage = () => {
             display: "flex",
             height: "100%",
             width: "100%",
+            justifyContent: {
+              lg: "flex-start",
+              md: "flex-start",
+              sm: "center",
+              xs: "center",
+            },
+            alignItems: "flex-start",
             borderRadius: "20px",
             boxShadow:
               "rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;",
@@ -221,10 +314,10 @@ const InscriptionPage = () => {
             item
             xs={6}
             sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
+              display: { lg: "flex", md: "flex", sm: "none", xs: "none" },
               padding: "40px",
+              width: "100%",
+              height: "100%",
             }}
           >
             <Box
@@ -238,40 +331,34 @@ const InscriptionPage = () => {
           </Grid>
           <Grid
             item
-            xs={6}
+            md={6}
+            lg={6}
+            xs={12}
+            sm={12}
             sx={{
               display: "flex",
-              flexDirection: "column",
-              justifyContent: "flex-start",
-              alignItems: "flex-start",
-              padding: "80px",
+              padding: "40px",
               width: "100%",
-              height: "100%",
+              flexDirection: "column",
             }}
           >
-            <Grid
+            <Typography
               sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                width: "100%",
+                fontFamily: "Poppins, sans-serif",
+                fontSize: "38px",
+                fontWeight: "900",
+                textAlign: "center",
+                mt: 2,
               }}
             >
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "38px",
-                  fontWeight: "900",
-                }}
-              >
-                Inscription
-              </Typography>
-            </Grid>
-            <form onSubmit={handleSubmit}>
+              Inscription
+            </Typography>
+            <form onSubmit={handleSubmit} style={{ width: "100%" }}>
               <Box
                 sx={{
-                  maxWidth: { xs: 320, sm: 416 },
+                  width: "100%",
                   bgcolor: "background.paper",
+                  mt: 2,
                 }}
               >
                 <Tabs
@@ -283,7 +370,6 @@ const InscriptionPage = () => {
                   sx={{
                     display: "flex",
                     width: "100%",
-                    mt: 3,
                     ".MuiTabs-indicator": {
                       display: "none",
                     },
@@ -331,6 +417,7 @@ const InscriptionPage = () => {
                   justifyContent: "center",
                   width: "100%",
                   height: "100%",
+                  mt: 2,
                 }}
               >
                 <TabPanel value={value} index={0}>
@@ -398,6 +485,7 @@ const InscriptionPage = () => {
                         label="Date de naissance"
                         name="dateOfBirth"
                         value={dateOfBirth}
+                        format="DD/MM/YYYY"
                         onChange={(newDate) => setDateOfBirth(newDate)}
                         sx={{
                           display: "flex",
@@ -458,43 +546,28 @@ const InscriptionPage = () => {
                 </TabPanel>
                 <TabPanel value={value} index={3}>
                   <SendVerifyEmailOrPhone
-                    phoneNumber={phoneNumber}
                     email={email}
+                    selectedValueRadio={selectedValueRadio}
+                    handleChangeRadio={handleChangeRadio}
+                    handleSubmitSendEmail={handleSubmitSendEmail}
                   />
                 </TabPanel>
                 <TabPanel value={value} index={4}>
-                  <style.BoxCenter sx={{ mt: 3 }}>
-                    <Typography
-                      sx={{
-                        fontFamily: "Poppins, sans-serif",
-                        fontSize: "20px",
-                        fontWeight: "600",
-                      }}
-                    >
-                      Veuillez rentrer le code reçu
-                    </Typography>
-                    <OtpInput length={6} onComplete={handleComplete} />
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        width: "100%",
-                        mt: 6,
-                      }}
-                    >
-                      <style.BtnDefault sx={{ width: "40%" }}>Renvoyez le code</style.BtnDefault>
-                      <style.BtnDefault sx={{ width: "40%" }}>Vérifiez le code</style.BtnDefault>
-                    </Box>
-                  </style.BoxCenter>
+                  <OtpInput
+                    length={6}
+                    onComplete={handleComplete}
+                    handleSubmitVerifyEmail={handleSubmitVerifyEmail}
+                    handleSubmitSendEmail={handleSubmitSendEmail}
+                  />
                 </TabPanel>
                 <TabPanel value={value} index={5}>
-                <style.BoxCenter sx={{ mt: 3 }}>
+                  <style.BoxCenter>
                     <Typography
                       sx={{
                         fontFamily: "Poppins, sans-serif",
                         fontSize: "20px",
                         fontWeight: "600",
+                        mt: 1,
                       }}
                     >
                       Super, votre compte a été vérifié !
@@ -502,25 +575,23 @@ const InscriptionPage = () => {
                     <Typography
                       sx={{
                         fontFamily: "Poppins, sans-serif",
-                        fontSize: "15px",
+                        fontSize: "14px",
                         fontWeight: "400",
-                        mt: 1
+                        mt: 1,
                       }}
                     >
-                      Il ne vous reste qu&#39;une étape, créer votre mot de passe. 
+                      Il ne vous reste qu&#39;une étape, créer votre mot de
+                      passe.
                     </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        width: "100%",
-                        mt: 6,
-                      }}
-                    >
-                      <style.BtnDefault sx={{ width: "60%" }} onClick={handleNextTab}>Créer mon mot de passe</style.BtnDefault>
-                    </Box>
+                    <style.BoxCenter>
+                      <style.BtnDefault
+                        sx={{ width: "110%" }}
+                        onClick={handleNextTab}
+                      >
+                        Créer mon mot de passe
+                      </style.BtnDefault>
                     </style.BoxCenter>
+                  </style.BoxCenter>
                 </TabPanel>
                 <TabPanel value={value} index={6}>
                   <PasswordPlanel
@@ -550,38 +621,65 @@ const InscriptionPage = () => {
                       {loading ? "Chargement..." : "Inscription"}
                     </style.BtnDefault>
                   </Box>
-                  <Snackbar
-                    open={!!error}
-                    autoHideDuration={6000}
-                    onClose={() => setError("")}
-                  >
-                    <Alert
-                      onClose={() => setError("")}
-                      severity="error"
-                      sx={{ width: "100%" }}
-                    >
-                      {error}
-                    </Alert>
-                  </Snackbar>
-
-                  <Snackbar
-                    open={success}
-                    autoHideDuration={6000}
-                    onClose={() => setSuccess(false)}
-                  >
-                    <Alert
-                      onClose={() => setSuccess(false)}
-                      severity="success"
-                      sx={{ width: "100%" }}
-                    >
-                      Utilisateur créé avec succès !
-                    </Alert>
-                  </Snackbar>
                 </TabPanel>
                 <TabPanel value={value} index={7}>
                   <SignupSuccessPlanel userName={userName} />
                 </TabPanel>
               </Grid>
+              <Snackbar
+                open={!!error}
+                autoHideDuration={6000}
+                onClose={() => setError("")}
+              >
+                <Alert
+                  onClose={() => setError("")}
+                  severity="error"
+                  sx={{ width: "100%" }}
+                >
+                  {error}
+                </Alert>
+              </Snackbar>
+
+              <Snackbar
+                open={!!success}
+                autoHideDuration={6000}
+                onClose={() => setSuccess("")}
+              >
+                <Alert
+                  onClose={() => setSuccess("")}
+                  severity="success"
+                  sx={{ width: "100%" }}
+                >
+                  {success}
+                </Alert>
+              </Snackbar>
+              <Snackbar
+                open={!!errorSendEmail}
+                autoHideDuration={6000}
+                onClose={() => setErrorSendEmail("")}
+              >
+                <Alert
+                  onClose={() => setErrorSendEmail("")}
+                  severity="error"
+                  sx={{ width: "100%" }}
+                >
+                  {errorSendEmail}
+                </Alert>
+              </Snackbar>
+
+              <Snackbar
+                open={!!successSendEmail}
+                autoHideDuration={6000}
+                onClose={() => setSuccessSendEmail("")}
+              >
+                <Alert
+                  onClose={() => setSuccessSendEmail("")}
+                  severity="success"
+                  sx={{ width: "100%" }}
+                >
+                  {successSendEmail}
+                </Alert>
+              </Snackbar>
             </form>
           </Grid>
         </Grid>
